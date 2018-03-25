@@ -15,6 +15,7 @@ type SSEServer struct {
 }
 
 func (s *SSEServer) Start() {
+	log.Println("Starting to serve SSE clients...")
 	go func() {
 		for {
 			select {
@@ -29,6 +30,7 @@ func (s *SSEServer) Start() {
 
 			case msg := <-s.MessageQueue:
 				for c, _ := range s.Connections {
+					log.Println("Sending to client...")
 					c <- msg
 				}
 			}
@@ -72,8 +74,10 @@ func StartHTTP(listenAddress string, listenPort int, sseEndpoint string) *SSESer
 		make(chan (chan string), 1000),
 		make(chan string, 10000000),
 	}
-	server.Start()
-	http.Handle(sseEndpoint, server)
-	http.ListenAndServe(listenAddress+":"+strconv.Itoa(listenPort), nil)
+        go func() {
+		server.Start()
+		http.Handle(sseEndpoint, server)
+		http.ListenAndServe(listenAddress+":"+strconv.Itoa(listenPort), nil)
+	}()
 	return server
 }

@@ -16,7 +16,7 @@ import (
 )
 
 var b *SSE.SSEServer
-var devicesToListen map[string]bool
+var devicesToListen map[string]bool = make(map[string]bool)
 
 // From https://github.com/paypal/gatt/blob/master/examples/option/option_linux.go
 var DefBTOptions = []gatt.Option{
@@ -81,13 +81,11 @@ func startBT() {
 func main() {
 	conf := flag.String("c", "", "Path to the configuration file")
 	flag.Parse()
-	ConfigParser.GetConfiguration(*conf)
-	devicesToListen = map[string]bool{
-		"C3:BC:E8:BF:6C:AC": true,
-		"DE:FD:4A:E0:0A:91": true,
-		"DF:61:03:50:8A:60": true,
+	configuration := ConfigParser.GetConfiguration(*conf)
+	for _, device := range configuration.Devices.Listen {
+		devicesToListen[device] = true
 	}
-	b = SSE.StartHTTP("0.0.0.0", 27911, "/events")
+	b = SSE.StartHTTP(configuration.HTTP.Listen.Address, configuration.HTTP.Listen.Port, configuration.HTTP.Listen.SSE_Endpoint)
 	startBT()
 
 	select {}

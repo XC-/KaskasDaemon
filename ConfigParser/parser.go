@@ -4,7 +4,41 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"encoding/json"
 )
+
+type HTTPListen struct {
+	Address 	string	`json:"address"`
+	Port		int	`json:"port"`
+	SSE_Endpoint	string	`json:"sse-endpoint"`
+}
+
+type HTTP struct {
+	Listen	HTTPListen	`json:"listen"`
+}
+
+type Devices struct {
+	Listen		[]string	`json:"listen"`
+}
+
+type Configuration struct {
+	HTTP		HTTP	`json:"http"`
+	Devices		Devices	`json:"devices"`
+}
+
+var configuration Configuration = Configuration{
+	HTTP: HTTP{
+		Listen: HTTPListen{
+			Address: "0.0.0.0",
+			Port: 27911,
+			SSE_Endpoint: "/events/",
+		},
+	},
+	Devices: Devices{
+		Listen: []string{},
+	},
+}
+
 
 func readConfiguration(configurationFilePath string) ([]byte, error) {
 	var file []byte
@@ -24,15 +58,18 @@ func readConfiguration(configurationFilePath string) ([]byte, error) {
 	return file, err
 }
 
-func parseConfiguration(fileContent []byte) {
-	fmt.Printf("%s", string(fileContent))
+func parseConfiguration(fileContent []byte) Configuration {
+	json.Unmarshal(fileContent, &configuration)
+	finalConfigurationJSON, _ := json.Marshal(configuration)
+	fmt.Println(string(finalConfigurationJSON))
+	return configuration
 }
 
-func GetConfiguration(configurationFilePath string) {
+func GetConfiguration(configurationFilePath string) Configuration {
 	f, e := readConfiguration(configurationFilePath)
 	if e != nil {
 		fmt.Printf("File error: %v\n", e)
 		os.Exit(1)
 	}
-	parseConfiguration(f)
+	return parseConfiguration(f)
 }
