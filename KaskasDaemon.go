@@ -81,7 +81,7 @@ func startBT() {
 func main() {
 	conf := flag.String("c", "", "Path to the configuration file")
 	flag.Parse()
-	ConfigParser.GetConfiguration(conf)
+	ConfigParser.GetConfiguration(*conf)
 	devicesToListen = map[string]bool{
 		"C3:BC:E8:BF:6C:AC": true,
 		"DE:FD:4A:E0:0A:91": true,
