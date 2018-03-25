@@ -28,8 +28,8 @@ func parseConfiguration(fileContent []byte) {
 	fmt.Printf("%s", string(fileContent))
 }
 
-func GetConfiguration() {
-	f, e := readConfiguration("")
+func GetConfiguration(configurationFilePath string) {
+	f, e := readConfiguration(configurationFilePath)
 	if e != nil {
 		fmt.Printf("File error: %v\n", e)
 		os.Exit(1)

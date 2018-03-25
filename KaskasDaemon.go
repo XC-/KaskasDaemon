@@ -3,15 +3,15 @@
 package main
 
 import (
+    "flag"
     "fmt"
     "time"
     "log"
-    "net/http"
     "encoding/hex"
     "encoding/binary"
     "github.com/paypal/gatt"
     "github.com/XC-/KaskasDaemon/ConfigParser"
-    "github.com/XC-/KaskasDaemon/SSE"
+    "github.com/XC-/KaskasDaemon/HTTP"
 )
 
 
@@ -21,7 +21,7 @@ var devicesToListen map[string]bool
 // From https://github.com/paypal/gatt/blob/master/examples/option/option_linux.go
 var DefBTOptions = []gatt.Option{
     gatt.LnxMaxConnections(1),
-    gatt.LnxDeviceID(-1, true)
+    gatt.LnxDeviceID(-1, true),
 }
 
 func onStateChanged(d gatt.Device, s gatt.State) {
@@ -49,7 +49,7 @@ func onPeriphDiscovered(p gatt.Peripheral, a *gatt.Advertisement, rssi int) {
             temperature_decimal := uint8(a.ManufacturerData[5])
             pressure := float32(binary.BigEndian.Uint16(a.ManufacturerData[6:8])) / 100 + 500
             fmt.Println(humidity, temperature_integer, temperature_decimal, pressure)
-            b.messages <- fmt.Sprintf("{" +
+            b.messageQueue <- fmt.Sprintf("{" +
                                           "\"deviceId\": \"%s\", " +
                                           "\"timestamp\": %d, " +
                                           "\"rawData\": \"%s\", " +
@@ -79,6 +79,9 @@ func startBT() {
 }
 
 func main() {
+    conf := flag.String("c", "", "Path to the configuration file")
+    flag.Parse()
+    ConfigParser.GetConfiguration(conf)
     devicesToListen = map[string]bool {
         "C3:BC:E8:BF:6C:AC": true,
         "DE:FD:4A:E0:0A:91": true,
