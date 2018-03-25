@@ -8,27 +8,27 @@ import (
 )
 
 type SSEServer struct {
-	connections      map[chan string]bool
-	incomingClients  chan chan string
-	removableClients chan chan string
-	messageQueue     chan string
+	Connections      map[chan string]bool
+	IncomingClients  chan chan string
+	RemovableClients chan chan string
+	MessageQueue     chan string
 }
 
 func (s *SSEServer) Start() {
 	go func() {
 		for {
 			select {
-			case c := <-s.incomingClients:
-				s.connections[c] = true
+			case c := <-s.IncomingClients:
+				s.Connections[c] = true
 				log.Println("New connection...")
 
-			case c := <-s.removableClients:
-				delete(s.connections, c)
+			case c := <-s.RemovableClients:
+				delete(s.Connections, c)
 				close(c)
 				log.Println("Removed a connection...")
 
-			case msg := <-s.messageQueue:
-				for c, _ := range s.connections {
+			case msg := <-s.MessageQueue:
+				for c, _ := range s.Connections {
 					c <- msg
 				}
 			}
@@ -43,11 +43,11 @@ func (s *SSEServer) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 		return
 	}
 	channel := make(chan string)
-	s.incomingClients <- channel
+	s.IncomingClients <- channel
 	notify := writer.(http.CloseNotifier).CloseNotify()
 	go func() {
 		<-notify
-		s.removableClients <- channel
+		s.RemovableClients <- channel
 		log.Println("HTTP Connection closed")
 	}()
 
