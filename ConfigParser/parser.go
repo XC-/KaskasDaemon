@@ -19,7 +19,7 @@ func readConfiguration(configurationFilePath string) ([]byte, error) {
 			}
 		}
 	} else {
-
+		file, err = ioutil.ReadFile(configurationFilePath)
 	}
 	return file, err
 }

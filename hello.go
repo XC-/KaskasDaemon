@@ -1,9 +1,13 @@
 package main
 
 import (
-    "github.com/XC-/KaskasDaemon/ConfigParser"
+	"flag"
+
+	"github.com/XC-/KaskasDaemon/ConfigParser"
 )
 
 func main() {
-    ConfigParser.GetConfiguration()
+	conf := flag.String("configuration", "", "Path to the configuration file.")
+	flag.Parse()
+	ConfigParser.GetConfiguration(conf)
 }
