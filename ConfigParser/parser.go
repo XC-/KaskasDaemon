@@ -1,44 +1,45 @@
-package ConfigParser
+package configparser
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"encoding/json"
 )
 
 type HTTPListen struct {
-	Address 	string	`json:"address"`
-	Port		int	`json:"port"`
-	SSE_Endpoint	string	`json:"sse-endpoint"`
+	Address     string `json:"address"`
+	Port        int    `json:"port"`
+	SSEEndpoint string `json:"sse-endpoint"`
 }
 
 type HTTP struct {
-	Listen	HTTPListen	`json:"listen"`
+	Listen   HTTPListen `json:"listen"`
+	ServeSSE bool       `json:"serve-sse"`
 }
 
 type Devices struct {
-	Listen		[]string	`json:"listen"`
+	Listen []string `json:"listen"`
 }
 
 type Configuration struct {
-	HTTP		HTTP	`json:"http"`
-	Devices		Devices	`json:"devices"`
+	HTTP    HTTP    `json:"http"`
+	Devices Devices `json:"devices"`
 }
 
 var configuration Configuration = Configuration{
 	HTTP: HTTP{
+		ServeSSE: true,
 		Listen: HTTPListen{
-			Address: "0.0.0.0",
-			Port: 27911,
-			SSE_Endpoint: "/events/",
+			Address:     "0.0.0.0",
+			Port:        27911,
+			SSEEndpoint: "/events/",
 		},
 	},
 	Devices: Devices{
 		Listen: []string{},
 	},
 }
-
 
 func readConfiguration(configurationFilePath string) ([]byte, error) {
 	var file []byte
