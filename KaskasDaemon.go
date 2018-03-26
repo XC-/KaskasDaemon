@@ -3,36 +3,30 @@
 package main
 
 import (
-	"encoding/binary"
-	"encoding/hex"
 	"flag"
-	"fmt"
-	"log"
-	"time"
 
 	"github.com/XC-/KaskasDaemon/ConfigParser"
     "github.com/XC-/KaskasDaemon/SSE"
     "github.com/XC-/KaskasDaemon/RuuviReader"
 )
 
-var devicesToListen map[string]bool = make(map[string]bool)
-
 func main() {
 	conf := flag.String("c", "", "Path to the configuration file")
 	flag.Parse()
 	configuration := configparser.GetConfiguration(*conf)
+	var devicesToListen map[string]bool = make(map[string]bool)
 	for _, device := range configuration.Devices.Listen {
 		devicesToListen[device] = true
     }
     
-    var server := *SSE.SSEServer
+    var server *SSE.SSEServer
     
     if configuration.HTTP.ServeSSE {
        server = SSE.StartHTTP(configuration.HTTP.Listen.Address, configuration.HTTP.Listen.Port, configuration.HTTP.Listen.SSEEndpoint)
     }
 
     btChannel := make(chan string)
-	ruuvireader.StartBT(&btChannel)
+	ruuvireader.StartBT(btChannel, devicesToListen)
 
     go func() {
         for {

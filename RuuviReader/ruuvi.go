@@ -16,7 +16,8 @@ var DefBTOptions = []gatt.Option{
 	gatt.LnxDeviceID(-1, true),
 }
 
-var messageChannel *chan string
+var messageChannel chan string
+var devicesToListen map[string]bool
 
 func onStateChanged(d gatt.Device, s gatt.State) {
 	switch s {
@@ -58,8 +59,9 @@ func onPeriphDiscovered(p gatt.Peripheral, a *gatt.Advertisement, rssi int) {
 	}
 }
 
-func StartBT(channel *chan string) {
+func StartBT(channel chan string, devices map[string]bool) {
 	messageChannel = channel
+	devicesToListen = devices
 	go func() {
 		d, err := gatt.NewDevice(DefBTOptions...)
 		if err != nil {
