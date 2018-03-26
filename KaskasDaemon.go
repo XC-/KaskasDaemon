@@ -5,9 +5,7 @@ package main
 import (
 	"flag"
 
-	"github.com/XC-/KaskasDaemon/ConfigParser"
-    "github.com/XC-/KaskasDaemon/SSE"
-    "github.com/XC-/KaskasDaemon/RuuviReader"
+	"github.com/XC-/KaskasDaemon/SSE"
 )
 
 func main() {
@@ -17,25 +15,25 @@ func main() {
 	var devicesToListen map[string]bool = make(map[string]bool)
 	for _, device := range configuration.Devices.Listen {
 		devicesToListen[device] = true
-    }
-    
-    var server *SSE.SSEServer
-    
-    if configuration.HTTP.ServeSSE {
-       server = SSE.StartHTTP(configuration.HTTP.Listen.Address, configuration.HTTP.Listen.Port, configuration.HTTP.Listen.SSEEndpoint)
-    }
+	}
 
-    btChannel := make(chan string)
+	var server *SSE.SSEServer
+
+	if configuration.HTTP.ServeSSE {
+		server = SSE.StartHTTP(configuration.HTTP.Listen.Address, configuration.HTTP.Listen.Port, configuration.HTTP.Listen.SSEEndpoint)
+	}
+
+	btChannel := make(chan string)
 	ruuvireader.StartBT(btChannel, devicesToListen)
 
-    go func() {
-        for {
-            select {
-            case msg := <-btChannel:
-                server.MessageQueue <- msg
-            }
-        }
-    }()
+	go func() {
+		for {
+			select {
+			case msg := <-btChannel:
+				server.MessageQueue <- msg
+			}
+		}
+	}()
 
 	select {}
 }

@@ -74,7 +74,7 @@ func StartHTTP(listenAddress string, listenPort int, sseEndpoint string) *SSESer
 		make(chan (chan string), 1000),
 		make(chan string, 10000000),
 	}
-        go func() {
+	go func() {
 		server.Start()
 		http.Handle(sseEndpoint, server)
 		http.ListenAndServe(listenAddress+":"+strconv.Itoa(listenPort), nil)
