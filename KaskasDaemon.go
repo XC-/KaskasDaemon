@@ -1,13 +1,11 @@
-// +build
-
 package main
 
 import (
 	"flag"
 
 	"github.com/XC-/KaskasDaemon/SSE"
-        "github.com/XC-/KaskasDaemon/ConfigParser"
-        "github.com/XC-/KaskasDaemon/RuuviReader"
+	"github.com/XC-/KaskasDaemon/ConfigParser"
+	"github.com/XC-/KaskasDaemon/RuuviReader"
 )
 
 func main() {
